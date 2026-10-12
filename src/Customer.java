@@ -1,19 +1,32 @@
 
 public class Customer {
-    private int customerId;
-    private double arrivalTime;
-    private double serviceTime;
+
+    private final int customerId;
+    private final double interarrivalTime;
+    private final double arrivalTime;
+    private final double serviceTime;
+
     private double serviceStartTime;
     private double departureTime;
 
-    public Customer(int customerId, double arrivalTime, double serviceTime) {
+    public Customer(
+            int customerId,
+            double interarrivalTime,
+            double arrivalTime,
+            double serviceTime) {
+
         this.customerId = customerId;
+        this.interarrivalTime = interarrivalTime;
         this.arrivalTime = arrivalTime;
         this.serviceTime = serviceTime;
     }
 
     public int getCustomerId() {
         return customerId;
+    }
+
+    public double getInterarrivalTime() {
+        return interarrivalTime;
     }
 
     public double getArrivalTime() {
@@ -42,5 +55,9 @@ public class Customer {
 
     public double getWaitingTime() {
         return serviceStartTime - arrivalTime;
+    }
+
+    public double getTimeInSystem() {
+        return departureTime - arrivalTime;
     }
 }
