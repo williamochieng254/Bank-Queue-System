@@ -13,7 +13,7 @@ public class Main {
         double arrivalTime = 0;
         int numberOfCustomers = 20;
 
-        // Generate one shared customer dataset.
+        // Generate the customer data once.
         for (int i = 1; i <= numberOfCustomers; i++) {
             arrivalTime += 1 + random.nextInt(5);
 
@@ -24,52 +24,64 @@ public class Main {
             );
         }
 
-        // Experiment 1: One teller.
-        BankQueueSimulation oneTeller =
-                new BankQueueSimulation(1);
+        // Run experiments with one, two, and three tellers.
+        int[] tellerOptions = {1, 2, 3};
+        double[] averageWaits = new double[tellerOptions.length];
 
-        for (Customer customer : customers) {
-            oneTeller.addCustomer(customer);
+        for (int i = 0; i < tellerOptions.length; i++) {
+
+            int tellerCount = tellerOptions[i];
+
+            BankQueueSimulation simulation =
+                    new BankQueueSimulation(tellerCount);
+
+            for (Customer customer : customers) {
+                simulation.addCustomer(
+                        new Customer(
+                                customer.getCustomerId(),
+                                customer.getArrivalTime(),
+                                customer.getServiceTime()
+                        )
+                );
+            }
+
+            simulation.runSimulation();
+
+            averageWaits[i] =
+                    simulation.getAverageWaitingTime();
         }
 
-        oneTeller.runSimulation();
+        // Display a comparison table.
+        System.out.println("\n========== EXPERIMENT COMPARISON ==========");
+        System.out.printf("%-15s %-25s%n",
+                "Number of Tellers", "Average Waiting Time");
+        System.out.println("------------------------------------------");
 
-        // Experiment 2: Two tellers.
-        BankQueueSimulation twoTellers =
-                new BankQueueSimulation(2);
-
-        for (Customer customer : customers) {
-            twoTellers.addCustomer(
-                    new Customer(
-                            customer.getCustomerId(),
-                            customer.getArrivalTime(),
-                            customer.getServiceTime()
-                    )
-            );
+        for (int i = 0; i < tellerOptions.length; i++) {
+            System.out.printf("%-15d %-25.2f%n",
+                    tellerOptions[i], averageWaits[i]);
         }
 
-        twoTellers.runSimulation();
+        // Calculate improvement compared with one teller.
+        System.out.println("\n========== WAITING TIME REDUCTION ==========");
 
-        double oneTellerWait = oneTeller.getAverageWaitingTime();
-        double twoTellerWait = twoTellers.getAverageWaitingTime();
+        double baseline = averageWaits[0];
 
-        System.out.println("\n===== TELLER COMPARISON =====");
-        System.out.printf("One teller average wait: %.2f minutes%n",
-                oneTellerWait);
-        System.out.printf("Two tellers average wait: %.2f minutes%n",
-                twoTellerWait);
+        for (int i = 1; i < tellerOptions.length; i++) {
+            if (baseline > 0) {
+                double reduction =
+                        (baseline - averageWaits[i]) / baseline * 100;
 
-        if (oneTellerWait > 0) {
-            double reduction =
-                    ((oneTellerWait - twoTellerWait) / oneTellerWait) * 100;
-
-            System.out.printf("Waiting time reduction: %.2f%%%n",
-                    reduction);
-        } else {
-            System.out.println(
-                    "Waiting time reduction cannot be calculated."
-            );
+                System.out.printf(
+                        "%d teller(s): %.2f%% reduction%n",
+                        tellerOptions[i], reduction
+                );
+            } else {
+                System.out.printf(
+                        "%d teller(s): baseline waiting time is zero%n",
+                        tellerOptions[i]
+                );
+            }
         }
-
     }
 }
